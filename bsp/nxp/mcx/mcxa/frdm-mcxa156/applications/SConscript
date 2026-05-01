@@ -1,0 +1,29 @@
+# SConscript for fitness controller application
+# 放置路径：bsp/nxp/mcx/mcxa/frdm-mcxa156/applications/
+# 使用方式：将本文件和所有 .c/.h 文件复制到 applications/ 目录，
+#            原 main.c 替换为本工程的 main.c，scons 重新编译即可。
+#
+# 需要在 rtconfig.h / menuconfig 中开启：
+#   CONFIG_BSP_USING_ADC0=y
+#   CONFIG_BSP_USING_PWM0=y
+#   CONFIG_RT_USING_PIN=y     (已默认开启)
+#   CONFIG_RT_USING_WDT=y
+#   CONFIG_RT_USING_ADC=y
+#   CONFIG_RT_USING_PWM=y
+
+from building import *
+import os
+
+cwd     = GetCurrentDir()
+CPPPATH = [cwd]
+src     = Glob('*.c')
+
+group = DefineGroup('Applications', src, depend=[''], CPPPATH=CPPPATH)
+
+# 自动包含子目录中的 SConscript
+lst = os.listdir(cwd)
+for item in lst:
+    if os.path.isfile(os.path.join(cwd, item, 'SConscript')):
+        group = group + SConscript(os.path.join(item, 'SConscript'))
+
+Return('group')
